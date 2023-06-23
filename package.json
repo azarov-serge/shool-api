@@ -2,7 +2,9 @@
   "name": "@school/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "mongo": "docker-compose -f mongo.docker-compose.yml up -d"
+  },
   "private": true,
   "dependencies": {
     "@nestjs/common": "^9.1.1",
