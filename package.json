@@ -4,7 +4,9 @@
   "license": "MIT",
   "scripts": {
     "mongo": "docker-compose -f mongo.docker-compose.yml up -d",
-    "rmq": "docker-compose -f rmq.docker-compose.yml up -d"
+    "rmq": "docker-compose -f rmq.docker-compose.yml up -d",
+    "debug:all": "nx run-many --target=serve --all --parallel=10",
+    "debug:account": "nx run account:serve"
   },
   "private": true,
   "dependencies": {
@@ -15,6 +17,7 @@
     "@nestjs/mongoose": "^10.0.0",
     "@nestjs/passport": "^10.0.0",
     "@nestjs/platform-express": "^9.1.1",
+    "@types/passport-jwt": "^3.0.8",
     "axios": "^1.0.0",
     "bcryptjs": "^2.4.3",
     "class-transformer": "^0.5.1",
