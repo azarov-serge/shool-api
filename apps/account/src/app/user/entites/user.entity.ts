@@ -1,4 +1,11 @@
-import { IUser, IUserCourse, UserRole } from '@school/interfaces';
+import { AccountChangedCourse } from '@school/contracts';
+import {
+  IDomainEvent,
+  IUser,
+  IUserCourse,
+  PurchasesState,
+  UserRole,
+} from '@school/interfaces';
 import { compare, genSalt, hash } from 'bcryptjs';
 
 export class UserEntity implements IUser {
@@ -7,7 +14,8 @@ export class UserEntity implements IUser {
   email: string;
   passwordHash: string;
   role: UserRole;
-  courses?: IUserCourse[];
+  courses: IUserCourse[];
+  events: IDomainEvent[] = [];
 
   constructor(user: IUser) {
     this._id = user._id;
@@ -15,7 +23,7 @@ export class UserEntity implements IUser {
     this.email = user.email;
     this.passwordHash = user.passwordHash;
     this.role = user.role;
-    this.courses = user.courses;
+    this.courses = user.courses || [];
   }
 
   public async getPublicProfile() {
@@ -24,6 +32,44 @@ export class UserEntity implements IUser {
       displayName: this.displayName,
       role: this.role,
     };
+  }
+
+  public setCourseStatus(courseId: string, state: PurchasesState) {
+    const exist = Boolean(
+      this.courses.find((course) => course._id === courseId)
+    );
+
+    if (!exist) {
+      const course: IUserCourse = {
+        courseId,
+        purchasesState: state,
+      };
+
+      this.courses.push(course);
+      return this;
+    }
+
+    if (state === PurchasesState.Cancaled) {
+      this.courses = this.courses.filter((course) => course._id !== courseId);
+
+      return this;
+    }
+
+    this.courses = this.courses.map((course) => {
+      if (course._id === courseId) {
+        course.purchasesState = state;
+        return course;
+      }
+
+      return course;
+    });
+
+    this.events.push({
+      topic: AccountChangedCourse.topic,
+      data: { courseId, userId: this._id, state },
+    });
+
+    return this;
   }
 
   public async setPassword(password: string) {
