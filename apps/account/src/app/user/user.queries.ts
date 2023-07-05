@@ -10,7 +10,7 @@ export class UserQueries {
 
   @RMQValidate()
   @RMQRoute(AccountUserInfo.topic)
-  async register(
+  async userInfo(
     @Body() { id }: AccountUserInfo.Request
   ): Promise<AccountUserInfo.Response> {
     const user = await this.userRepository.findUserById(id);
